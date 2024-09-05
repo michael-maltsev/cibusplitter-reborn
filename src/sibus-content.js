@@ -88,7 +88,7 @@ const splitCost = () => {
                 });
 
             if (missingParticipants.size > 0) {
-                alert(`CibuSplitter: Some participants are missing: ${[...missingParticipants].join(", ")}. Use the extension's icon to add them to the conversion table and split again.`)
+                alert(`CibuSplitter Reborn: Some participants are missing: ${[...missingParticipants].join(", ")}. Use the extension's icon to add them to the conversion table and split again.`)
             }
         }
     );
