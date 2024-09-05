@@ -1,0 +1,2 @@
+This extension does not collect personal data. Some data that is required for
+the operation of the extension is stored locally.
