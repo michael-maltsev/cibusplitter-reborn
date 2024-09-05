@@ -17,4 +17,5 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
 });
 
+s.id = chrome.runtime.id;
 (document.head || document.documentElement).appendChild(s);

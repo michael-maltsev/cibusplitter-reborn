@@ -1,4 +1,4 @@
-const EXTENSION_ID = "lfklmmalkllmjckblbmbcnhinllbhebl";
+const EXTENSION_ID = document.currentScript.id;
 const LANG = {
     participants: {
         he: "משתתפים",
