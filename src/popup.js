@@ -119,7 +119,7 @@ const handleAddFriend = (name) => {
         friends[woltName] = cibusName;
         chrome.storage.sync.set({ friends });
 
-        addRow(table, "converstion", woltName, cibusName);
+        addRow(table, "conversion", woltName, cibusName);
         fillTables();
     });
 };
