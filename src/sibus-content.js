@@ -17,11 +17,11 @@ const splitCost = () => {
                 0
             );
 
-            let totalOrderCost = parseFloat(
+            const totalOrderCost = parseFloat(
                 document.querySelector("#hSubTitle big").textContent
             );
 
-            let extraCost = totalOrderCost - partialCost;
+            const extraCost = totalOrderCost - partialCost;
 
             if (!document.getElementById("cbSplit").checked) {
                 document.querySelector("label[for=cbSplit]").click();
@@ -57,7 +57,7 @@ const splitCost = () => {
                 )
                 .forEach((el) => {
                     const name = el.textContent;
-                    let p;
+                    let p = null;
                     if (name in participants) {
                         p = participants[name];
                         missingParticipants.delete(name);
@@ -70,23 +70,26 @@ const splitCost = () => {
                             }
                             return true;
                         });
+
+                        if (!p) {
+                            return;
+                        }
                     }
 
-                    if (p) {
-                        const pPrice = p.total;
-                        const extra = Math.round(
-                            (pPrice / partialCost) * extraCost
+                    const pPrice = p.total;
+                    const extra = Math.round(
+                        (pPrice / partialCost) * extraCost
+                    );
+
+                    const totalForParticipant = pPrice + extra;
+
+                    el.parentElement.querySelector("input").value =
+                        totalForParticipant;
+                    el.parentElement
+                        .querySelector("input")
+                        .dispatchEvent(
+                            new Event("change", { bubbles: true })
                         );
-
-                        const totalForParticipant = pPrice + extra;
-                        el.parentElement.querySelector("input").value =
-                            totalForParticipant;
-                        el.parentElement
-                            .querySelector("input")
-                            .dispatchEvent(
-                                new Event("change", { bubbles: true })
-                            );
-                    }
                 });
 
             chrome.runtime.sendMessage(EXTENSION_ID, {
