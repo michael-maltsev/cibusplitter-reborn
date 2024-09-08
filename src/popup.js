@@ -185,7 +185,10 @@ const exportFriends = () => {
 
 const importFriends = () => {
     const friends = prompt("Please paste the friends list here:");
-    const table = d.querySelector("#conversion-table");
+    if (!friends) {
+        return;
+    }
+
     let parsed = {};
 
     try {
@@ -194,10 +197,10 @@ const importFriends = () => {
     } catch (e) {
         if (e instanceof SyntaxError) {
             alert("Friends list is invalid.");
-            return;
         } else {
-            throw e;
+            alert("Error: " + e);
         }
+        return;
     }
     chrome.storage.sync.set({ "friends": parsed });
     fillTables();
