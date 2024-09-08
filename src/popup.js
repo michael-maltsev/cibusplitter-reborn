@@ -34,13 +34,26 @@ const generateNodes = (type) => {
     return ret;
 };
 
-const addRow = (table, type, woltNameStr, cibusNameStr) => {
+const addRow = (table, type, woltNameStr, cibusNameData) => {
     const { row, woltName, cibusName, action } = generateNodes(type);
-    woltName.textContent = woltNameStr;
-    cibusName.textContent = cibusNameStr;
 
+    woltName.textContent = woltNameStr;
     row.appendChild(woltName);
-    if (cibusName) {
+
+    if (cibusNameData) {
+        if (Array.isArray(cibusNameData)) {
+            const comboBox = document.createElement("select");
+            cibusNameData.forEach((name) => {
+                const option = document.createElement("option");
+                option.textContent = name;
+                option.value = name;
+                comboBox.appendChild(option);
+            });
+            cibusName.appendChild(comboBox);
+        } else {
+            cibusName.textContent = cibusNameData;
+        }
+
         row.appendChild(cibusName);
         row.appendChild(action);
     }
@@ -65,10 +78,11 @@ const fillConversionTable = () => {
 const fillOrderTable = () => {
     const table = d.querySelector("#current-order");
     table.querySelectorAll("div.row").forEach( e => e.remove());
-    chrome.storage.session.get("participants", function (resultParticipants) {
+    chrome.storage.session.get(["participants", "cibusContacts"], function (sessionRes) {
         chrome.storage.sync.get("friends", function (resultFriends) {
             const friends = resultFriends?.friends || {};
-            const participants = resultParticipants?.participants || {};
+            const participants = sessionRes?.participants || {};
+            const cibusContacts = sessionRes?.cibusContacts || [];
             if (
                 Object.keys(participants).length == 0
             ) {
@@ -76,9 +90,9 @@ const fillOrderTable = () => {
                 return;
             }
 
-            Object.keys(resultParticipants.participants).forEach((participant) => {
-                if (!resultParticipants.participants[participant].isHost && !(participant in friends)) {
-                    addRow(table, "order", participant);
+            Object.keys(participants).forEach((participant) => {
+                if (!participants[participant].isHost && !(participant in friends)) {
+                    addRow(table, "order", participant, cibusContacts);
                 }
             });
         })
@@ -99,7 +113,7 @@ const handleRemoveFriend = (el) => {
     });
 };
 
-const handleAddFriend = (name) => {
+const handleAddFriend = (name, selectedCibusName) => {
     let woltName = name;
     if (!woltName) {
         woltName = prompt("Please enter Wolt name");
@@ -108,9 +122,12 @@ const handleAddFriend = (name) => {
         }
     }
 
-    const cibusName = prompt("Please enter Cibus name");
-    if (!woltName || !cibusName) {
-        return;
+    let cibusName = selectedCibusName;
+    if (!cibusName) {
+        cibusName = prompt("Please enter Cibus name");
+        if (!cibusName) {
+            return;
+        }
     }
 
     chrome.storage.sync.get("friends", function (result) {
@@ -139,7 +156,11 @@ const registerClickHandlers = () => {
                 ev.target.parentElement.parentElement.querySelector(
                     ".wolt"
                 ).textContent;
-            handleAddFriend(name);
+            const selectedCibusName =
+                ev.target.parentElement.parentElement.querySelector(
+                    ".cibus > select"
+                ).value;
+            handleAddFriend(name, selectedCibusName);
         }
     });
 };

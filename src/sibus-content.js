@@ -7,6 +7,7 @@ const splitCost = () => {
         (response) => {
             const friends = response.friends || {};
             const participants = response.participants || {};
+            const cibusContacts = [];
 
             // This holds the cost of the order without the shipping, extra distance and minimum per order price
             const partialCost = Object.keys(participants).reduce(
@@ -32,6 +33,7 @@ const splitCost = () => {
                 .querySelectorAll("#friendsList label span")
                 .forEach((el) => {
                     const cibusName = el.textContent;
+                    cibusContacts.push(cibusName);
                     if (cibusName in participants) {
                         el.click();
                     } else {
@@ -86,6 +88,10 @@ const splitCost = () => {
                             );
                     }
                 });
+
+            chrome.runtime.sendMessage(EXTENSION_ID, {
+                cibusContacts,
+            });
 
             if (missingParticipants.size > 0) {
                 alert(`CibuSplitter Reborn: Some participants are missing: ${[...missingParticipants].join(", ")}. Use the extension's icon to add them to the conversion table and split again.`)
