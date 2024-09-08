@@ -9,6 +9,18 @@ const splitCost = () => {
             const participants = response.participants || {};
             const cibusContacts = [];
 
+            // Secret Amiga account that pays for your food
+            let amigaName = null;
+            let amigaAmount = null;
+            for (const [woltName, cibusName] of Object.entries(friends)) {
+                const match = woltName.match(/^Amiga(\d+)$/i);
+                if (match) {
+                    amigaName = cibusName;
+                    amigaAmount = parseInt(match[1], 10) * Object.keys(participants).length;
+                    break;
+                }
+            }
+
             // This holds the cost of the order without the shipping, extra distance and minimum per order price
             const partialCost = Object.keys(participants).reduce(
                 (accu, name) => {
@@ -20,6 +32,12 @@ const splitCost = () => {
             const totalOrderCost = parseFloat(
                 document.querySelector("#hSubTitle big").textContent
             );
+
+            // Leave at least one coin for the rest
+            if (amigaName && amigaAmount > totalOrderCost - 1) {
+                amigaAmount = totalOrderCost - 1;
+            }
+            const amigaDiscount = amigaAmount / Object.keys(participants).length;
 
             const extraCost = totalOrderCost - partialCost;
 
@@ -34,7 +52,9 @@ const splitCost = () => {
                 .forEach((el) => {
                     const cibusName = el.textContent;
                     cibusContacts.push(cibusName);
-                    if (cibusName in participants) {
+                    if (amigaName && cibusName == amigaName) {
+                        el.click();
+                    } else if (cibusName in participants) {
                         el.click();
                     } else {
                         Object.keys(friends).every((woltName) => {
@@ -58,7 +78,9 @@ const splitCost = () => {
                 .forEach((el) => {
                     const name = el.textContent;
                     let p = null;
-                    if (name in participants) {
+                    if (amigaName && name == amigaName) {
+                        // Proceed
+                    } else if (name in participants) {
                         p = participants[name];
                         missingParticipants.delete(name);
                     } else {
@@ -76,12 +98,17 @@ const splitCost = () => {
                         }
                     }
 
-                    const pPrice = p.total;
-                    const extra = Math.round(
-                        (pPrice / partialCost) * extraCost
-                    );
+                    let totalForParticipant;
+                    if (amigaName && name == amigaName) {
+                        totalForParticipant = amigaAmount;
+                    } else {
+                        const pPrice = p.total;
+                        const extra = Math.round(
+                            (pPrice / partialCost) * extraCost
+                        );
 
-                    const totalForParticipant = pPrice + extra;
+                        totalForParticipant = pPrice + extra - amigaDiscount;
+                    }
 
                     el.parentElement.querySelector("input").value =
                         totalForParticipant;
