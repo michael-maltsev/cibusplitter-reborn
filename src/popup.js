@@ -65,7 +65,7 @@ const fillConversionTable = () => {
 const fillOrderTable = () => {
     const table = d.querySelector("#current-order");
     table.querySelectorAll("div.row").forEach( e => e.remove());
-    chrome.storage.local.get("participants", function (resultParticipants) {
+    chrome.storage.session.get("participants", function (resultParticipants) {
         chrome.storage.sync.get("friends", function (resultFriends) {
             const friends = resultFriends?.friends || {};
             const participants = resultParticipants?.participants || {};
