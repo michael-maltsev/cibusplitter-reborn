@@ -42,14 +42,16 @@ const addRow = (table, type, woltNameStr, cibusNameData) => {
 
     if (cibusNameData) {
         if (Array.isArray(cibusNameData)) {
-            const comboBox = document.createElement("select");
-            cibusNameData.forEach((name) => {
-                const option = document.createElement("option");
-                option.textContent = name;
-                option.value = name;
-                comboBox.appendChild(option);
-            });
-            cibusName.appendChild(comboBox);
+            if (cibusNameData.length > 0) {
+                const comboBox = document.createElement("select");
+                cibusNameData.forEach((name) => {
+                    const option = document.createElement("option");
+                    option.textContent = name;
+                    option.value = name;
+                    comboBox.appendChild(option);
+                });
+                cibusName.appendChild(comboBox);
+            }
         } else {
             cibusName.textContent = cibusNameData;
         }
@@ -159,7 +161,7 @@ const registerClickHandlers = () => {
             const selectedCibusName =
                 ev.target.parentElement.parentElement.querySelector(
                     ".cibus > select"
-                ).value;
+                )?.value;
             handleAddFriend(name, selectedCibusName);
         }
     });
