@@ -1,5 +1,32 @@
 const EXTENSION_ID = document.currentScript.id;
 
+function calcParticipantsCost(participants, totalOrderCost) {
+    const participantsCost = {};
+
+    // This holds the cost of the order without the shipping, extra distance and minimum per order price
+    const partialCost = Object.keys(participants).reduce(
+        (accu, name) => {
+            return accu + participants[name].total;
+        },
+        0
+    );
+
+    const extraCost = totalOrderCost - partialCost;
+
+    for (const [name, participant] of Object.entries(participants)) {
+        const pPrice = participant.total;
+        const extra = Math.round(
+            (pPrice / partialCost) * extraCost
+        );
+
+        const totalForParticipant = pPrice + extra;
+
+        participantsCost[name] = totalForParticipant;
+    }
+
+    return participantsCost;
+}
+
 const splitCost = () => {
     chrome.runtime.sendMessage(
         EXTENSION_ID,
@@ -9,19 +36,11 @@ const splitCost = () => {
             const participants = response.participants || {};
             const cibusContacts = [];
 
-            // This holds the cost of the order without the shipping, extra distance and minimum per order price
-            const partialCost = Object.keys(participants).reduce(
-                (accu, name) => {
-                    return accu + participants[name].total;
-                },
-                0
-            );
-
             const totalOrderCost = parseFloat(
                 document.querySelector("#hSubTitle big").textContent
             );
 
-            const extraCost = totalOrderCost - partialCost;
+            const participantsCost = calcParticipantsCost(participants, totalOrderCost);
 
             if (!document.getElementById("cbSplit").checked) {
                 document.querySelector("label[for=cbSplit]").click();
@@ -57,34 +76,26 @@ const splitCost = () => {
                 )
                 .forEach((el) => {
                     const name = el.textContent;
-                    let p = null;
-                    if (name in participants) {
-                        p = participants[name];
+                    let cost = null;
+                    if (name in participantsCost) {
+                        cost = participantsCost[name];
                         missingParticipants.delete(name);
                     } else {
                         Object.keys(friends).every((woltName) => {
                             if (name == friends[woltName]) {
-                                p = participants[woltName];
+                                cost = participantsCost[woltName];
                                 missingParticipants.delete(woltName);
                                 return false;
                             }
                             return true;
                         });
 
-                        if (!p) {
+                        if (cost === null) {
                             return;
                         }
                     }
 
-                    const pPrice = p.total;
-                    const extra = Math.round(
-                        (pPrice / partialCost) * extraCost
-                    );
-
-                    const totalForParticipant = pPrice + extra;
-
-                    el.parentElement.querySelector("input").value =
-                        totalForParticipant;
+                    el.parentElement.querySelector("input").value = cost;
                     el.parentElement
                         .querySelector("input")
                         .dispatchEvent(
