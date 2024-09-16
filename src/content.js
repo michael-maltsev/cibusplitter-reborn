@@ -32,7 +32,7 @@ function saveParticipants() {
             spans[NAME_POSITION].nextElementSibling?.textContent ==
             LANG.host[curLang];
         const total = parseInt(
-            spans[isHost ? spans.length-1 : spans.length-2]
+            spans[spans.length - 1]
                 ?.textContent.replace(/[^\d\.]/g, "")
         ) || 0;
 
