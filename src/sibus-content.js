@@ -1,6 +1,6 @@
 const EXTENSION_ID = document.currentScript.id;
 
-function calcParticipantsCost(participants, totalOrderCost) {
+function calcParticipantsCost(participants, totalOrderCost, amigaName, amigaAmount) {
     const participantsCost = {};
 
     // This holds the cost of the order without the shipping, extra distance and minimum per order price
@@ -24,6 +24,29 @@ function calcParticipantsCost(participants, totalOrderCost) {
         participantsCost[name] = totalForParticipant;
     }
 
+    if (amigaAmount) {
+        let amigaAmountLeft = amigaAmount;
+        let participantsLeft = Object.keys(participants).length;
+
+        for (const [name, cost] of Object.entries(participantsCost).sort((a, b) => a[1] - b[1])) {
+            // Avoid leaving the host with a zero amount which is unsupported by the Cibus UI
+            const minAmountToLeave = participants[name].isHost ? 1 : 0;
+
+            const discount = Math.min(amigaAmountLeft / participantsLeft, Math.max(cost - minAmountToLeave, 0));
+
+            participantsCost[name] -= discount;
+            amigaAmountLeft -= discount;
+            participantsLeft--;
+
+            if (amigaAmountLeft <= 0) {
+                break;
+            }
+        }
+
+        const totalDiscount = amigaAmount - amigaAmountLeft;
+        participantsCost[amigaName] = totalDiscount;
+    }
+
     return participantsCost;
 }
 
@@ -40,7 +63,19 @@ const splitCost = () => {
                 document.querySelector("#hSubTitle big").textContent
             );
 
-            const participantsCost = calcParticipantsCost(participants, totalOrderCost);
+            // Secret Amiga account that pays for your food
+            let amigaName = null;
+            let amigaAmount = null;
+            for (const [woltName, cibusName] of Object.entries(friends)) {
+                const match = woltName.match(/^Amiga(\d+)$/i);
+                if (match) {
+                    amigaName = cibusName;
+                    amigaAmount = parseInt(match[1], 10) * Object.keys(participants).length;
+                    break;
+                }
+            }
+
+            const participantsCost = calcParticipantsCost(participants, totalOrderCost, amigaName, amigaAmount);
 
             if (!document.getElementById("cbSplit").checked) {
                 document.querySelector("label[for=cbSplit]").click();
@@ -53,7 +88,9 @@ const splitCost = () => {
                 .forEach((el) => {
                     const cibusName = el.textContent;
                     cibusContacts.push(cibusName);
-                    if (cibusName in participants) {
+                    if (amigaName && cibusName === amigaName) {
+                        el.click();
+                    } else if (cibusName in participants) {
                         el.click();
                     } else {
                         Object.keys(friends).every((woltName) => {
