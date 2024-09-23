@@ -4,7 +4,7 @@ function roundPayment(num) {
     return Math.round(num * 100) / 100;
 }
 
-function calcParticipantsCost(participants, totalOrderCost, amigaName, amigaAmount) {
+function calcParticipantsCost(participants, totalOrderCost, amigaAccount) {
     const participantsCost = {};
 
     // This holds the cost of the order without the shipping, extra distance and minimum per order price
@@ -28,8 +28,10 @@ function calcParticipantsCost(participants, totalOrderCost, amigaName, amigaAmou
         participantsCost[name] = totalForParticipant;
     }
 
-    if (amigaAmount) {
-        let amigaAmountLeft = amigaAmount;
+    if (amigaAccount) {
+        const totalAmigaAmount = amigaAccount.amount * Object.keys(participants).length;
+
+        let amigaAmountLeft = totalAmigaAmount;
         let participantsLeft = Object.keys(participants).length;
 
         for (const [name, cost] of Object.entries(participantsCost).sort((a, b) => a[1] - b[1])) {
@@ -47,11 +49,44 @@ function calcParticipantsCost(participants, totalOrderCost, amigaName, amigaAmou
             }
         }
 
-        const totalDiscount = amigaAmount - amigaAmountLeft;
-        participantsCost[amigaName] = totalDiscount;
+        const totalDiscount = totalAmigaAmount - amigaAmountLeft;
+        participantsCost[amigaAccount.name] = totalDiscount;
     }
 
     return participantsCost;
+}
+
+function getAmigaAccount(friends) {
+    const currentDate = new Date;
+    const currentTime = currentDate.getHours() * 100 + currentDate.getMinutes();
+
+    for (const [woltName, cibusName] of Object.entries(friends)) {
+        const match = woltName.match(/^Amiga(\d+)(?:_(\d\d\d\d)-(\d\d\d\d))?$/i);
+        if (!match) {
+            continue;
+        }
+
+        const timeFrom = parseInt(match[2] ?? '1900', 10);
+        const timeTo = parseInt(match[3] ?? '0300', 10);
+        if (timeFrom <= timeTo) {
+            // e.g. 19:00-24:00
+            if (currentTime < timeFrom || currentTime >= timeTo) {
+                continue;
+            }
+        } else {
+            // e.g. 19:00-03:00
+            if (currentTime >= timeTo && currentTime < timeFrom) {
+                continue;
+            }
+        }
+
+        return {
+            name: cibusName,
+            amount: parseInt(match[1], 10),
+        };
+    }
+
+    return null;
 }
 
 const splitCost = () => {
@@ -68,18 +103,9 @@ const splitCost = () => {
             );
 
             // Secret Amiga account that pays for your food
-            let amigaName = null;
-            let amigaAmount = null;
-            for (const [woltName, cibusName] of Object.entries(friends)) {
-                const match = woltName.match(/^Amiga(\d+)$/i);
-                if (match) {
-                    amigaName = cibusName;
-                    amigaAmount = parseInt(match[1], 10) * Object.keys(participants).length;
-                    break;
-                }
-            }
+            const amigaAccount = getAmigaAccount(friends);
 
-            const participantsCost = calcParticipantsCost(participants, totalOrderCost, amigaName, amigaAmount);
+            const participantsCost = calcParticipantsCost(participants, totalOrderCost, amigaAccount);
 
             if (!document.getElementById("cbSplit").checked) {
                 document.querySelector("label[for=cbSplit]").click();
@@ -92,7 +118,7 @@ const splitCost = () => {
                 .forEach((el) => {
                     const cibusName = el.textContent;
                     cibusContacts.push(cibusName);
-                    if (amigaName && cibusName === amigaName) {
+                    if (amigaAccount && cibusName === amigaAccount.name) {
                         el.click();
                     } else if (cibusName in participants) {
                         el.click();
