@@ -136,7 +136,8 @@ const splitCost = () => {
                         }
                     }
 
-                    el.parentElement.querySelector("input").value = cost;
+                    el.parentElement.querySelector("input").value =
+                        cost.toFixed(2).replace(/\.0+$/, "").replace(/(\.[0-9]+?)0+$/, "$1");
                     el.parentElement
                         .querySelector("input")
                         .dispatchEvent(
