@@ -44,12 +44,19 @@ const addRow = (table, type, woltNameStr, cibusNameData) => {
         if (Array.isArray(cibusNameData)) {
             if (cibusNameData.length > 0) {
                 const comboBox = document.createElement("select");
+
+                const placeholderOption = document.createElement("option");
+                placeholderOption.textContent = "שם ב-Cibus";
+                placeholderOption.value = "";
+                comboBox.appendChild(placeholderOption);
+
                 cibusNameData.forEach((name) => {
                     const option = document.createElement("option");
                     option.textContent = name;
                     option.value = name;
                     comboBox.appendChild(option);
                 });
+
                 cibusName.appendChild(comboBox);
             }
         } else {
