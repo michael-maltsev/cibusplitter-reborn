@@ -1,9 +1,5 @@
 const EXTENSION_ID = document.currentScript.id;
 
-function roundPayment(num) {
-    return Math.round(num * 100) / 100;
-}
-
 function calcParticipantsCost(participants, totalOrderCost, amigaAccount) {
     const participantsCost = {};
 
@@ -19,9 +15,7 @@ function calcParticipantsCost(participants, totalOrderCost, amigaAccount) {
 
     for (const [name, participant] of Object.entries(participants)) {
         const pPrice = participant.total;
-        const extra = roundPayment(
-            (pPrice / partialCost) * extraCost
-        );
+        const extra = (pPrice / partialCost) * extraCost;
 
         const totalForParticipant = pPrice + extra;
 
@@ -38,7 +32,7 @@ function calcParticipantsCost(participants, totalOrderCost, amigaAccount) {
             // Avoid leaving the host with a zero amount which is unsupported by the Cibus UI
             const minAmountToLeave = participants[name].isHost ? 1 : 0;
 
-            const discount = roundPayment(Math.min(amigaAmountLeft / participantsLeft, Math.max(cost - minAmountToLeave, 0)));
+            const discount = Math.min(amigaAmountLeft / participantsLeft, Math.max(cost - minAmountToLeave, 0));
 
             participantsCost[name] -= discount;
             amigaAmountLeft -= discount;
