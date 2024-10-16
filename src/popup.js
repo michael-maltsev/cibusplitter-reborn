@@ -54,9 +54,6 @@ const addRow = (table, type, woltNameStr, cibusNameData) => {
                     const option = document.createElement("option");
                     option.textContent = name;
                     option.value = name;
-                    if (name == woltNameStr) {
-                        option.selected = true;
-                    }
                     comboBox.appendChild(option);
                 }
 
@@ -103,7 +100,9 @@ const fillOrderTable = () => {
             }
 
             Object.keys(participants).forEach((participant) => {
-                if (!participants[participant].isHost && !(participant in friends)) {
+                if (!participants[participant].isHost &&
+                    !(participant in friends) &&
+                    !cibusContacts.includes(participant)) {
                     addRow(table, "order", participant, cibusContacts);
                 }
             });
