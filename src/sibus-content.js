@@ -14,12 +14,7 @@ function calcParticipantsCost(participants, totalOrderCost, amigaAccount) {
     const extraCost = totalOrderCost - partialCost;
 
     for (const [name, participant] of Object.entries(participants)) {
-        const pPrice = participant.total;
-        const extra = (pPrice / partialCost) * extraCost;
-
-        const totalForParticipant = pPrice + extra;
-
-        participantsCost[name] = totalForParticipant;
+        participantsCost[name] = participant.total + extraCost / Object.keys(participants).length;
     }
 
     if (amigaAccount) {
