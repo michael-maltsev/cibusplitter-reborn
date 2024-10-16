@@ -117,13 +117,12 @@ const splitCost = () => {
                     } else if (cibusName in participants) {
                         el.click();
                     } else {
-                        Object.keys(friends).every((woltName) => {
-                            if (cibusName == friends[woltName] && woltName in participants) {
+                        for (const [woltNameIter, cibusNameIter] of Object.entries(friends)) {
+                            if (cibusName == cibusNameIter && woltNameIter in participants) {
                                 el.click();
-                                return false;
+                                break;
                             }
-                            return true;
-                        });
+                        }
                     }
                 });
 
@@ -142,14 +141,13 @@ const splitCost = () => {
                         cost = participantsCost[name];
                         missingParticipants.delete(name);
                     } else {
-                        Object.keys(friends).every((woltName) => {
-                            if (name == friends[woltName]) {
-                                cost = participantsCost[woltName];
-                                missingParticipants.delete(woltName);
-                                return false;
+                        for (const [woltNameIter, cibusNameIter] of Object.entries(friends)) {
+                            if (name == cibusNameIter && woltNameIter in participantsCost) {
+                                cost = participantsCost[woltNameIter];
+                                missingParticipants.delete(woltNameIter);
+                                break;
                             }
-                            return true;
-                        });
+                        }
 
                         if (cost === null) {
                             return;

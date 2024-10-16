@@ -50,12 +50,12 @@ const addRow = (table, type, woltNameStr, cibusNameData) => {
                 placeholderOption.value = "";
                 comboBox.appendChild(placeholderOption);
 
-                cibusNameData.forEach((name) => {
+                for (const name of cibusNameData) {
                     const option = document.createElement("option");
                     option.textContent = name;
                     option.value = name;
                     comboBox.appendChild(option);
-                });
+                }
 
                 cibusName.appendChild(comboBox);
             }
