@@ -50,10 +50,13 @@ const addRow = (table, type, woltNameStr, cibusNameData) => {
                 placeholderOption.value = "";
                 comboBox.appendChild(placeholderOption);
 
-                for (const name of cibusNameData) {
+                for (const name of cibusNameData.toSorted()) {
                     const option = document.createElement("option");
                     option.textContent = name;
                     option.value = name;
+                    if (name == woltNameStr) {
+                        option.selected = true;
+                    }
                     comboBox.appendChild(option);
                 }
 
