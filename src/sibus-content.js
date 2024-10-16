@@ -90,7 +90,7 @@ const splitCost = () => {
         (response) => {
             const friends = response.friends || {};
             const participants = response.participants || {};
-            const cibusContacts = [];
+            const cibusContacts = new Set();
 
             const totalOrderCost = parseFloat(
                 document.querySelector("#hSubTitle big").textContent
@@ -111,7 +111,7 @@ const splitCost = () => {
                 .querySelectorAll("#friendsList label span")
                 .forEach((el) => {
                     const cibusName = el.textContent;
-                    cibusContacts.push(cibusName);
+                    cibusContacts.add(cibusName);
                     if (amigaAccount && cibusName === amigaAccount.name) {
                         el.click();
                     } else if (cibusName in participants) {
@@ -136,6 +136,7 @@ const splitCost = () => {
                 )
                 .forEach((el) => {
                     const name = el.textContent;
+                    cibusContacts.add(name);
                     let cost = null;
                     if (name in participantsCost) {
                         cost = participantsCost[name];
@@ -164,7 +165,7 @@ const splitCost = () => {
                 });
 
             chrome.runtime.sendMessage(EXTENSION_ID, {
-                cibusContacts,
+                cibusContacts: [...cibusContacts].sort(),
             });
 
             if (missingParticipants.size > 0) {
