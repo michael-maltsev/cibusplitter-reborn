@@ -31,10 +31,14 @@ function saveParticipants() {
         const isHost =
             spans[NAME_POSITION].nextElementSibling?.textContent ==
             LANG.host[curLang];
-        const total = parseInt(
-            spans[spans.length - 1]
-                ?.textContent.replace(/[^\d\.]/g, "")
-        ) || 0;
+        const total = parseFloat(
+            [...spans]
+                .filter(x => x.textContent.includes('₪'))
+                .pop()
+                ?.textContent
+                ?.replaceAll('₪', '')
+            || 0
+        );
 
         participants[name] = {
             total,
