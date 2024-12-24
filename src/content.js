@@ -18,13 +18,10 @@ function saveParticipants() {
     ).filter((el) => el?.textContent == LANG.participants[curLang])[0]
         ?.parentElement?.parentElement?.parentElement;
 
-    container.querySelectorAll("li").forEach((liElement) => {
+    // Get all li elements (user details) which are not nested in another li
+    // element (e.g. order details).
+    container.querySelectorAll("li:not(li li)").forEach((liElement) => {
         const NAME_POSITION = 0;
-
-        if (liElement.getAttribute('class').indexOf("DetailedItemOption") > -1) {
-        // This is not a user's element
-            return;
-        }
 
         const spans = liElement.querySelectorAll("span");
         const name = spans[NAME_POSITION].textContent;
