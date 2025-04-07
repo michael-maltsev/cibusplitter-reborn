@@ -18,9 +18,16 @@ function saveParticipants() {
     ).filter((el) => el?.textContent == LANG.participants[curLang])[0]
         ?.parentElement?.parentElement?.parentElement;
 
+    const tabPanels = container.querySelectorAll("div[id^=tabpanel]");
+
+    // If there are "Not ready" and "Ready" tabs, we want to get the last one
+    // (which is the "Ready" tab) to avoid including the "Not ready"
+    // participants.
+    const lastTabPanel = tabPanels[tabPanels.length - 1];
+
     // Get all li elements (user details) which are not nested in another li
     // element (e.g. order details).
-    container.querySelectorAll("li:not(li li)").forEach((liElement) => {
+    lastTabPanel.querySelectorAll("li:not(li li)").forEach((liElement) => {
         const NAME_POSITION = 0;
 
         const spans = liElement.querySelectorAll("span");
