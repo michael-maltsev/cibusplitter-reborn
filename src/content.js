@@ -10,13 +10,19 @@ const LANG = {
     },
 };
 
+function getParticipantsContainer() {
+    const curLang = document.body.lang ?? "he";
+    return Array.from(
+        document.querySelectorAll("#mainContent h3")
+    ).filter(
+        (el) => el?.textContent == LANG.participants[curLang]
+    )[0]?.parentElement?.parentElement?.parentElement;
+}
+
 function saveParticipants() {
     const curLang = document.body.lang ?? "he";
     const participants = {};
-    const container = Array.from(
-        document.querySelectorAll("#mainContent h3")
-    ).filter((el) => el?.textContent == LANG.participants[curLang])[0]
-        ?.parentElement?.parentElement?.parentElement;
+    const container = getParticipantsContainer();
 
     const tabPanels = container.querySelectorAll("div[id^=tabpanel]");
 
@@ -60,12 +66,7 @@ function registerMutationObserver(cnt = 0) {
         return;
     }
 
-    const container = Array.from(
-        document.querySelectorAll("#mainContent h3")
-    ).filter(
-        (el) => el?.textContent == LANG.participants[document.body.lang ?? "he"]
-    )[0]?.parentElement?.parentElement?.parentElement;
-
+    const container = getParticipantsContainer();
     if (!container) {
         setTimeout(() => {
             registerMutationObserver(cnt + 1);
