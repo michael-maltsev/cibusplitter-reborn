@@ -16,7 +16,7 @@ function getParticipantsContainer() {
         document.querySelectorAll("#mainContent h3")
     ).filter(
         (el) => el?.textContent == LANG.participants[curLang]
-    )[0]?.parentElement?.parentElement?.parentElement;
+    )[0]?.parentElement?.parentElement?.parentElement?.parentElement;
 }
 
 function saveParticipants() {
