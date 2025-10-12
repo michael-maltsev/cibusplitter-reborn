@@ -1,7 +1,7 @@
 {
     "name": "CibuSplitter Reborn",
     "description": "CibuSplitter Reborn is a chrome extension intended to split group-order created in Wolt to multiple Cibus cards.",
-    "version": "0.2.9",
+    "version": "0.2.10",
     "manifest_version": 3,
     "permissions": ["storage"],
     "host_permissions": [
