@@ -99,6 +99,8 @@ const fillOrderTable = () => {
                 return;
             }
 
+            document.querySelector("#current-order-container").style.display = "block";
+
             Object.keys(participants).forEach((participant) => {
                 if (!participants[participant].isHost &&
                     !(participant in friends) &&
