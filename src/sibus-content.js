@@ -88,7 +88,7 @@ const splitCost = () => {
             const cibusContacts = new Set();
 
             const totalOrderCost = parseFloat(
-                document.querySelector("#hSubTitle big").textContent
+                document.querySelector(".amount").textContent.replace(/^₪/, "")
             );
 
             // Secret Amiga account that pays for your food
@@ -96,41 +96,77 @@ const splitCost = () => {
 
             const participantsCost = calcParticipantsCost(participants, totalOrderCost, amigaAccount);
 
-            if (!document.getElementById("cbSplit").checked) {
-                document.querySelector("label[for=cbSplit]").click();
-                document.querySelector("label[for=cbFriendsList]").click();
+            const splitCheckbox = document.querySelector(
+                ".split-wrap app-toggle-button input.ng-toggle-switch-input[type=checkbox]");
+            if (!splitCheckbox.checked) {
+                splitCheckbox.click();
             }
 
             // In the first pass we add all of the participants
-            document
-                .querySelectorAll("#friendsList label span")
-                .forEach((el) => {
+            while (true) {
+                // Click to add a participant
+                document.querySelector(".split-wrap img.plus").click();
+                if (!document.querySelector(".mat-menu-content")) {
+                    document.querySelector(".split-wrap .mat-menu-trigger:not(.hid) .dd-arrow").click();
+                }
+
+                let matched = false;
+                for (const el of document.querySelectorAll("button.friends-menu-item")) {
                     const cibusName = el.textContent;
                     cibusContacts.add(cibusName);
                     if (amigaAccount && cibusName === amigaAccount.name) {
-                        el.click();
+                        matched = true;
                     } else if (cibusName in participants) {
-                        el.click();
+                        matched = true;
                     } else {
                         for (const [woltNameIter, cibusNameIter] of Object.entries(friends)) {
                             if (cibusName == cibusNameIter && woltNameIter in participants) {
-                                el.click();
+                                matched = true;
                                 break;
                             }
                         }
                     }
-                });
+
+                    if (matched) {
+                        el.click();
+                        break;
+                    }
+                }
+
+                if (!matched) {
+                    break;
+                }
+            }
+
+            // Close menu if still open
+            if (document.querySelector(".mat-menu-content")) {
+                document.querySelector(".split-wrap .mat-menu-trigger:not(.hid) .dd-arrow").click();
+            }
 
             // We start with all of the participants and remove those that we found one by one
             const missingParticipants = new Set(Object.keys(participants).filter(name => !participants[name].isHost));
 
             // In the second pass we set the cost of each participant
             document
-                .querySelectorAll(
-                    "#splitList div:not([class]) span:not([id='lblMyName'])"
-                )
+                /*
+                    # Table row that:
+                    table
+                    # Has a delete button that is not invisible
+                    :has(
+                        .plus.del:not(.invisible)
+                    )
+                    # But does not have a non-hidden arrow button
+                    :not(
+                        :has(
+                            .mat-menu-trigger:not(.hid) .dd-arrow
+                        )
+                    )
+                */
+                .querySelectorAll(".split-wrap > table:has(.plus.del:not(.invisible)):not(:has(.mat-menu-trigger:not(.hid) .dd-arrow))")
                 .forEach((el) => {
-                    const name = el.textContent;
+                    const name = [...el.querySelectorAll("span:not(.mat-menu-trigger)")]
+                        .map(x => x.textContent)
+                        .filter(x => x)[0];
                     cibusContacts.add(name);
                     let cost = null;
                     if (name in participantsCost) {
@@ -150,10 +186,10 @@ const splitCost = () => {
                         }
                     }
 
-                    el.parentElement.querySelector("input").value =
+                    const splitPriceInput = el.querySelector(".split-price");
+                    splitPriceInput.value =
                         cost.toFixed(2).replace(/\.0+$/, "").replace(/(\.[0-9]+?)0+$/, "$1");
-                    el.parentElement
-                        .querySelector("input")
+                    splitPriceInput
                         .dispatchEvent(
                             new Event("change", { bubbles: true })
                         );
@@ -176,12 +212,41 @@ window.addEventListener("message", (event) => {
     }
 });
 
-window.addEventListener("load", () => {
-    if (
-        document.querySelector("h1#hTitle")?.textContent ==
-            "הסכום לחיוב בסיבוס:" &&
-        !document.querySelector("#pLoginText")
-    ) {
-        splitCost();
+function registerMutationObserver(cnt = 0) {
+    if (cnt > 10) {
+        return;
     }
+
+    const container = document.querySelector(".oauth-container > .container");
+    if (!container) {
+        setTimeout(() => {
+            registerMutationObserver(cnt + 1);
+        }, 2000);
+        return;
+    }
+
+    if (container.querySelector(":scope > app-oauth-pay")) {
+        splitCost();
+        return;
+    }
+
+    const observer = new MutationObserver(function (mutations) {
+        if (container.querySelector(":scope > app-oauth-pay")) {
+            splitCost();
+            observer.disconnect();
+        }
+    });
+
+    const config = {
+        subtree: true,
+        attributes: false,
+        childList: true,
+        characterData: false,
+    };
+
+    observer.observe(container, config);
+}
+
+window.addEventListener("load", () => {
+    registerMutationObserver();
 });

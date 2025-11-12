@@ -95,7 +95,7 @@ const fillOrderTable = () => {
             if (
                 Object.keys(participants).length == 0
             ) {
-                document.querySelector("#current-order-container").remove();
+                document.querySelector("#current-order-container").style.display = "none";
                 return;
             }
 

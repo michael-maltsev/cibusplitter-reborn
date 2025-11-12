@@ -3,7 +3,7 @@ const s = document.createElement("script");
 if (document.location.href.startsWith("https://wolt.com")) {
     s.src = chrome.runtime.getURL("content.js");
 } else if (
-    document.location.href.startsWith("https://myconsumers.pluxee.co.il/Auth.aspx")
+    document.location.href.startsWith("https://consumers.pluxee.co.il/ThirdPartyPurchase/oauth")
 ) {
     s.src = chrome.runtime.getURL("sibus-content.js");
 }

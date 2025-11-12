@@ -6,7 +6,7 @@
     "permissions": ["storage"],
     "host_permissions": [
         "https://wolt.com/*",
-        "https://myconsumers.pluxee.co.il/Auth.aspx?*"
+        "https://consumers.pluxee.co.il/ThirdPartyPurchase/oauth?*"
     ],
     "background": {
         "service_worker": "background.js"
@@ -30,7 +30,7 @@
         {
             "matches": [
                 "https://wolt.com/*",
-                "https://myconsumers.pluxee.co.il/Auth.aspx?*"
+                "https://consumers.pluxee.co.il/ThirdPartyPurchase/oauth?*"
             ],
             "js": ["injector.js"],
             "run_at": "document_start",
@@ -44,13 +44,13 @@
         },
         {
             "resources": ["sibus-content.js"],
-            "matches": ["https://myconsumers.pluxee.co.il/*"]
+            "matches": ["https://consumers.pluxee.co.il/*"]
         }
     ],
     "externally_connectable": {
         "matches": [
             "https://wolt.com/*",
-            "https://myconsumers.pluxee.co.il/Auth.aspx?*"
+            "https://consumers.pluxee.co.il/ThirdPartyPurchase/oauth?*"
         ]
     }
 }
