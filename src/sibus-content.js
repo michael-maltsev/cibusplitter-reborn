@@ -103,17 +103,26 @@ const splitCost = () => {
             }
 
             // In the first pass we add all of the participants
-            while (true) {
+            let maxIterations = Infinity;
+            for (let i = 0; i < maxIterations; i++) {
                 // Click to add a participant
                 document.querySelector(".split-wrap img.plus").click();
                 if (!document.querySelector(".mat-menu-content")) {
                     document.querySelector(".split-wrap .mat-menu-trigger:not(.hid) .dd-arrow").click();
                 }
 
+                let elements = document.querySelectorAll("button.friends-menu-item");
+                if (i === 0) {
+                    maxIterations = elements.length;
+                    for (const el of elements) {
+                        const cibusName = el.textContent;
+                        cibusContacts.add(cibusName);
+                    }
+                }
+
                 let matched = false;
-                for (const el of document.querySelectorAll("button.friends-menu-item")) {
+                for (const el of elements) {
                     const cibusName = el.textContent;
-                    cibusContacts.add(cibusName);
                     if (amigaAccount && cibusName === amigaAccount.name) {
                         matched = true;
                     } else if (cibusName in participants) {
@@ -143,6 +152,10 @@ const splitCost = () => {
                 document.querySelector(".split-wrap .mat-menu-trigger:not(.hid) .dd-arrow").click();
             }
 
+            // Cancel last addition
+            // Seems to cause buggy calculation, commented for now
+            // document.querySelector(".split-wrap > table:has(.mat-menu-trigger:not(.hid) .dd-arrow) .plus.del").click();
+
             // We start with all of the participants and remove those that we found one by one
             const missingParticipants = new Set(Object.keys(participants).filter(name => !participants[name].isHost));
 
@@ -167,7 +180,6 @@ const splitCost = () => {
                     const name = [...el.querySelectorAll("span:not(.mat-menu-trigger)")]
                         .map(x => x.textContent)
                         .filter(x => x)[0];
-                    cibusContacts.add(name);
                     let cost = null;
                     if (name in participantsCost) {
                         cost = participantsCost[name];
