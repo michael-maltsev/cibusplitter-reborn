@@ -1,5 +1,9 @@
 const EXTENSION_ID = document.currentScript.id;
 
+function cleanUpName(name) {
+    return name.trim().replace(/\s+/g, " ");
+}
+
 function calcParticipantsCost(participants, totalOrderCost, amigaAccount) {
     const participantsCost = {};
 
@@ -115,14 +119,14 @@ const splitCost = () => {
                 if (i === 0) {
                     maxIterations = elements.length;
                     for (const el of elements) {
-                        const cibusName = el.textContent;
+                        const cibusName = cleanUpName(el.textContent);
                         cibusContacts.add(cibusName);
                     }
                 }
 
                 let matched = false;
                 for (const el of elements) {
-                    const cibusName = el.textContent;
+                    const cibusName = cleanUpName(el.textContent);
                     if (amigaAccount && cibusName === amigaAccount.name) {
                         matched = true;
                     } else if (cibusName in participants) {
@@ -178,7 +182,7 @@ const splitCost = () => {
                 .querySelectorAll(".split-wrap > table:has(.plus.del:not(.invisible)):not(:has(.mat-menu-trigger:not(.hid) .dd-arrow))")
                 .forEach((el) => {
                     const name = [...el.querySelectorAll("span:not(.mat-menu-trigger)")]
-                        .map(x => x.textContent)
+                        .map(x => cleanUpName(x.textContent))
                         .filter(x => x)[0];
                     let cost = null;
                     if (name in participantsCost) {
