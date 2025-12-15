@@ -205,10 +205,7 @@ const splitCost = () => {
                     const splitPriceInput = el.querySelector(".split-price");
                     splitPriceInput.value =
                         cost.toFixed(2).replace(/\.0+$/, "").replace(/(\.[0-9]+?)0+$/, "$1");
-                    splitPriceInput
-                        .dispatchEvent(
-                            new Event("change", { bubbles: true })
-                        );
+                    splitPriceInput.dispatchEvent(new Event("input", { bubbles: true }));
                 });
 
             chrome.runtime.sendMessage(EXTENSION_ID, {
